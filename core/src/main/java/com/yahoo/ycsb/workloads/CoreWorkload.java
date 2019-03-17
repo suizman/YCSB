@@ -336,6 +336,12 @@ public class CoreWorkload extends Workload {
    */
   public static final String FIELD_NAME_PREFIX = "fieldnameprefix";
 
+
+  /**
+   * Single custom field.
+   */
+  public static final String CUSTOM_FIELD = "customfield";
+
   /**
    * Default value of the field name prefix.
    */
@@ -397,10 +403,13 @@ public class CoreWorkload extends Workload {
     fieldcount =
         Long.parseLong(p.getProperty(FIELD_COUNT_PROPERTY, FIELD_COUNT_PROPERTY_DEFAULT));
     final String fieldnameprefix = p.getProperty(FIELD_NAME_PREFIX, FIELD_NAME_PREFIX_DEFAULT);
+    final String customfield = p.getProperty(CUSTOM_FIELD);
+
     fieldnames = new ArrayList<>();
     for (int i = 0; i < fieldcount; i++) {
       fieldnames.add(fieldnameprefix + i);
     }
+    fieldnames.add(customfield);
     fieldlengthgenerator = CoreWorkload.getFieldLengthGenerator(p);
 
     recordcount =
@@ -551,8 +560,10 @@ public class CoreWorkload extends Workload {
    */
   private HashMap<String, ByteIterator> buildValues(String key) {
     HashMap<String, ByteIterator> values = new HashMap<>();
+    Map<String, String> customValues = new HashMap<String, String>();
 
     for (String fieldkey : fieldnames) {
+
       ByteIterator data;
       if (dataintegrity) {
         data = new StringByteIterator(buildDeterministicValue(key, fieldkey));
@@ -561,6 +572,7 @@ public class CoreWorkload extends Workload {
         data = new RandomByteIterator(fieldlengthgenerator.nextValue().longValue());
       }
       values.put(fieldkey, data);
+
     }
     return values;
   }
